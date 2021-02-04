@@ -1,0 +1,15 @@
+{
+  "name": "fxbo-rates",
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "start": "nuxt start"
+  },
+  "dependencies": {
+    "@nuxtjs/axios": "^5.13.0",
+    "axios": "^0.21.1",
+    "nuxt": "^2.14.12",
+    "vue-axios": "^3.2.4"
+  }
+}

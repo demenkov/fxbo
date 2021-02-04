@@ -1,0 +1,11 @@
+FROM node:13.7.0-alpine3.11 AS builder
+WORKDIR /app
+COPY package.json /app/package.json
+COPY yarn.lock /app/yarn.lock
+COPY nuxt.config.js /app/nuxt.config.js
+COPY pages/ /app/pages/
+RUN yarn install --pure-lockfile --cache-folder /tmp/yarn_cache_for_docker/ --production=false --no-progress --prefer-offline \
+ && yarn check --integrity --verify-tree --no-progress --non-interactive \
+ && yarn generate \
+ && yarn build
+CMD ["yarn", "start"]

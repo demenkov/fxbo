@@ -1,0 +1,29 @@
+version: "3.7"
+services:
+    nginx:
+        build:
+            context: .
+            dockerfile: Dockerfile-nginx
+        ports:
+            - "8888:80"
+        links:
+            - php
+    php:
+        build:
+            context: .
+            dockerfile: Dockerfile-php
+        volumes:
+            - ./:/app/:rw
+        env_file: .env.local
+        extra_hosts:
+            - 'host.docker.internal:${DOCKER_HOST_IP:-172.17.0.1}'
+    js:
+        build:
+            context: .
+            dockerfile: Dockerfile-js
+        ports:
+            - "8889:3000"
+        environment:
+            HOST: 0.0.0.0
+            PORT: 3000
+

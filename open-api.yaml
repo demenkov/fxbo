@@ -1,0 +1,278 @@
+openapi: 3.0.0
+info:
+  title: 'Rates API'
+  description: 'API for FXBO rates'
+  version: 1.0.0
+servers:
+  -
+    url: 'http://localhost:8888/'
+    description: Local
+paths:
+  /exchange:
+    get:
+      tags:
+        - exchange
+      summary: Exchange
+      operationId: 'FXBO\Controller\ExchangeController::exchange'
+      parameters:
+        -
+          $ref: '#/components/parameters/ExchangeFrom'
+        -
+          $ref: '#/components/parameters/ExchangeTo'
+        -
+          $ref: '#/components/parameters/ExchangeAmount'
+      responses:
+        '200':
+          description: 'Converted amount'
+          content:
+            application/json:
+              schema:
+                type: string
+        default:
+          $ref: '#/components/responses/error'
+  /:
+    options:
+      description: 'CORS options callback'
+      operationId: 'FXBO\Controller\OptionsController::options'
+      responses:
+        '200':
+          description: 'CORS headers'
+  /rate:
+    get:
+      tags:
+        - rate
+      summary: 'Rate list'
+      parameters:
+        -
+          $ref: '#/components/parameters/PageQuery'
+        -
+          $ref: '#/components/parameters/LimitQuery'
+        -
+          $ref: '#/components/parameters/RateFromQuery'
+        -
+          $ref: '#/components/parameters/RateToQuery'
+        -
+          $ref: '#/components/parameters/RateSortQuery'
+        -
+          $ref: '#/components/parameters/RateOrderQuery'
+      responses:
+        '200':
+          description: Rates
+          content:
+            application/json:
+              schema:
+                properties:
+                  count: { $ref: '#/components/schemas/PaginationResponse/properties/count' }
+                  limit: { $ref: '#/components/schemas/PaginationResponse/properties/limit' }
+                  pages: { $ref: '#/components/schemas/PaginationResponse/properties/pages' }
+                  page: { $ref: '#/components/schemas/PaginationResponse/properties/page' }
+                  items: { type: array, items: { $ref: '#/components/schemas/Rate' } }
+                type: object
+        default:
+          $ref: '#/components/responses/error'
+      security:
+        -
+          api_key: []
+  '/rate/{id}':
+    put:
+      tags:
+        - rate
+      summary: 'Update rate'
+      operationId: 'FXBO\Controller\RateController::update'
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RateUpdate'
+      responses:
+        '200':
+          description: Rate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rate'
+        default:
+          $ref: '#/components/responses/error'
+      security:
+        -
+          api_key: []
+    delete:
+      tags:
+        - rate
+      summary: 'Delete rate'
+      operationId: 'FXBO\Controller\RateController::delete'
+      parameters:
+        -
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Deleted successfully'
+        default:
+          $ref: '#/components/responses/error'
+      security:
+        -
+          api_key: []
+components:
+  schemas:
+    RateUpdate:
+      description: 'Rate update model'
+      properties:
+        price:
+          $ref: '#/components/schemas/Rate/properties/price'
+      type: object
+    Rate:
+      properties:
+        id:
+          type: integer
+          example: 1
+        date:
+          type: string
+          example: '2021-01-01'
+        base:
+          type: string
+          example: USD
+        quote:
+          type: string
+          example: BTC
+        price:
+          type: string
+          example: '10.45'
+        provider:
+          type: string
+          example: ecb
+        created:
+          type: string
+          example: '2021-01-01 00:00:00'
+        updated:
+          type: string
+          example: '2022-01-01 00:00:00'
+      type: object
+    Page:
+      description: 'Page number'
+      type: integer
+      example: 1
+    Limit:
+      description: 'Items per page'
+      type: integer
+      example: 20
+    PaginationResponse:
+      properties:
+        count:
+          type: integer
+          example: '1'
+        limit:
+          type: integer
+          example: '20'
+        pages:
+          type: integer
+          example: '1'
+        page:
+          type: integer
+          example: '1'
+      type: object
+    ErrorMessageSchema:
+      properties:
+        message:
+          type: string
+      type: object
+  responses:
+    error:
+      description: 'General error'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorMessageSchema'
+  parameters:
+    ExchangeFrom:
+      name: from
+      in: query
+      required: true
+      schema:
+        description: 'Currency code (ISO 4217)'
+        type: string
+        example: USD
+    ExchangeTo:
+      name: to
+      in: query
+      required: true
+      schema:
+        description: 'Currency code (ISO 4217)'
+        type: string
+        example: EUR
+    ExchangeAmount:
+      name: amount
+      in: query
+      required: true
+      schema:
+        type: number
+    RateFromQuery:
+      name: from
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date
+        example: '1970-01-01'
+    RateToQuery:
+      name: to
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date
+        example: '2030-01-01'
+    RateSortQuery:
+      name: sort
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - id
+          - date
+          - base
+          - quote
+          - price
+          - provider
+          - created
+          - updated
+        example: date
+    RateOrderQuery:
+      name: order
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+          - asc
+          - desc
+        example: desc
+    PageQuery:
+      name: page
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/Page'
+    LimitQuery:
+      name: limit
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/Limit'
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: key
+      in: query

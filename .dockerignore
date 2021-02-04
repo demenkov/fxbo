@@ -1,0 +1,15 @@
+*
+!src
+!vendor
+!nginx.conf
+!config
+!bin
+!public
+!migrations
+!.env
+!open-api.yaml
+!Makefile
+!pages
+!package.json
+!yarn.lock
+!nuxt.config.js

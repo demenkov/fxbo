@@ -1,0 +1,22 @@
+FROM php:8.0.1-fpm
+
+RUN apt-get update && apt-get install -y libxml2-dev \
+ && docker-php-ext-install pdo_mysql xml \
+ && echo "\nexpose_php = Off" >> /usr/local/etc/php/php.ini \
+ && echo "pm = dynamic" >> /usr/local/etc/php/php.ini \
+ && echo "php_admin_value[memory_limit] = 512M" >> /usr/local/etc/php-fpm.conf \
+ && mkdir -p /app/var \
+ && chmod -R 777 /app/var
+
+ADD ./src /app/src
+ADD ./vendor /app/vendor
+ADD ./config /app/config
+ADD ./bin /app/bin
+ADD ./public /app/public
+ADD ./migrations /app/migrations
+ADD .env /app/.env
+ADD ./open-api.yaml /app/public/open-api.yaml
+ADD Makefile /app/Makefile
+ARG VERSION=unstable
+ENV VERSION=$VERSION
+WORKDIR /app
